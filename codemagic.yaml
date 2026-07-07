@@ -1,0 +1,53 @@
+workflows:
+  # WORKFLOW 1: ANDROID
+  android-workflow:
+    name: Castanhal Hub - Android Build
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - google_play_credentials # Onde você subirá seu keystore
+      flutter: stable
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build Android AAB
+        script: |
+          # O Codemagic gerencia a assinatura se configurado na UI
+          flutter build appbundle --release --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+
+  # WORKFLOW 2: IOS
+  ios-workflow:
+    name: Castanhal Hub - iOS Build
+    instance_type: mac_mini_m1
+    environment:
+      groups:
+        - apple_credentials # Onde você subirá Certificados e Provisioning Profiles
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Install Pods
+        script: find . -name "Podfile" -execdir pod install \;
+      - name: Build iOS IPA
+        script: |
+          # O export-options-plist é gerado automaticamente pelo Codemagic se a assinatura estiver configurada
+          flutter build ipa --release --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+  # WORKFLOW 3: WEB
+  web-workflow:
+    name: Castanhal Hub - Web Build
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build Web
+        script: flutter build web --release
+    artifacts:
+      - build/web/**
