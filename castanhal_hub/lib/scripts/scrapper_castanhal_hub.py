@@ -1,13 +1,15 @@
-import time
+import os
 import re
-import googlemaps
-from supabase import create_client, Client
+import time
 from datetime import datetime
 
+import googlemaps
+from supabase import Client, create_client
+
 # --- CONFIGURAÇÕES ---
-GOOGLE_API_KEY = "AIzaSyA4DqUdOOTQKQMu5pOWnQLRVpM309iiSYM"
-SUPABASE_URL = "https://xhnrlrvplvtrkzinivxx.supabase.co/rest/v1/"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhobnJscnZwbHZ0cmt6aW5pdnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzODE0MDAsImV4cCI6MjA5ODk1NzQwMH0.WHg7GnAAenC1o4MqLuqKCCJ87QXHDPWssRDC0OokME8" # Use a service_role para bypass de RLS se necessário
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 # Coordenadas centrais de Castanhal, PA
 CASTANHAL_COORDS = (-1.2974, -47.9274)

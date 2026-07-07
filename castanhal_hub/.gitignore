@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment files and secrets
+.env
+*.env
+.env.*
+**/.env
+**/*.env
+**/secrets*
+**/*secret*

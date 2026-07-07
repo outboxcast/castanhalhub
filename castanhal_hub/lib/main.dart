@@ -9,17 +9,12 @@ import 'theme/theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const supabaseUrl = String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: 'https://xhnrlrvplvtrkzinivxx.supabase.co',
-  );
-  const supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhobnJscnZwbHZ0cmt6aW5pdnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzODE0MDAsImV4cCI6MjA5ODk1NzQwMH0.WHg7GnAAenC1o4MqLuqKCCJ87QXHDPWssRDC0OokME8',
-  );
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
-  if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+  if (!Platform.environment.containsKey('FLUTTER_TEST') &&
+      supabaseUrl.isNotEmpty &&
+      supabaseAnonKey.isNotEmpty) {
     await Supabase.initialize(
       url: supabaseUrl,
       publishableKey: supabaseAnonKey,
