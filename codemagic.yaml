@@ -15,10 +15,6 @@ workflows:
       branch_patterns:
         - pattern: main
           include: true
-      paths:
-        - app/**
-        - shared/**
-        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -47,10 +43,6 @@ workflows:
       branch_patterns:
         - pattern: main
           include: true
-      paths:
-        - app/**
-        - shared/**
-        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -78,10 +70,6 @@ workflows:
       branch_patterns:
         - pattern: main
           include: true
-      paths:
-        - app/**
-        - shared/**
-        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -106,10 +94,6 @@ workflows:
       branch_patterns:
         - pattern: main
           include: true
-      paths:
-        - admin/**
-        - shared/**
-        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + admin)
         script: |
