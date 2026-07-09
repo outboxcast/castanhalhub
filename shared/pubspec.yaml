@@ -12,4 +12,4 @@ dependencies:
   supabase_flutter: ^2.16.0
   shared_preferences: ^2.3.4
   url_launcher: ^6.2.5
-  google_fonts: ^6.0.0
+  google_fonts: ^8.1.0
