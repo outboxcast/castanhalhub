@@ -1,0 +1,30 @@
+{
+    "name": "Castanhal Hub Dev Environment",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dart-code.dart-code",
+                "dart-code.flutter",
+                "fill-labs.dependi",
+                "oderwat.indent-rainbow"
+            ],
+            "settings": {
+                "dart.flutterSdkPath": "/opt/flutter"
+            }
+        }
+    },
+    // Encaminhamento automático da porta do Flutter Web
+    "forwardPorts": [8080],
+    "portsAttributes": {
+        "8080": {
+            "label": "Castanhal Hub Web Preview",
+            "onAutoForward": "openBrowser"
+        }
+    },
+
+    "postCreateCommand": "git config --global --add safe.directory /opt/flutter && flutter pub get",
+    "remoteUser": "vscode"
+}

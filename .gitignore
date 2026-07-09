@@ -1,2 +1,32 @@
+# Secrets
 keystore_base64.txt
 castanhal-hub.jks
+*.jks
+*.keystore
+
+# Flutter build outputs
+**/build/
+**/.dart_tool/
+**/.packages
+**/.pub/
+**/pubspec.lock
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+.venv/
+__pycache__/
+*.pyc

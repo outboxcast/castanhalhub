@@ -1,53 +1,77 @@
 workflows:
-  # WORKFLOW 1: ANDROID
-  android-workflow:
-    name: Castanhal Hub - Android Build
+  # WORKFLOW 1: APP ANDROID
+  app-android-workflow:
+    name: App - Android Build
     instance_type: mac_mini_m1
     environment:
       groups:
-        - google_play_credentials # Onde você subirá seu keystore
+        - google_play_credentials
       flutter: stable
+    working_directory: app
     scripts:
-      - name: Get dependencies
-        script: flutter pub get
+      - name: Get dependencies (shared + app)
+        script: |
+          cd ../shared && flutter pub get
+          cd ../app && flutter pub get
       - name: Build Android AAB
         script: |
-          # O Codemagic gerencia a assinatura se configurado na UI
           flutter build appbundle --release --build-number=$BUILD_NUMBER
     artifacts:
-      - build/app/outputs/bundle/release/*.aab
+      - app/build/app/outputs/bundle/release/*.aab
 
-  # WORKFLOW 2: IOS
-  ios-workflow:
-    name: Castanhal Hub - iOS Build
+  # WORKFLOW 2: APP IOS
+  app-ios-workflow:
+    name: App - iOS Build
     instance_type: mac_mini_m1
     environment:
       groups:
-        - apple_credentials # Onde você subirá Certificados e Provisioning Profiles
+        - apple_credentials
       flutter: stable
       xcode: latest
+    working_directory: app
     scripts:
-      - name: Get dependencies
-        script: flutter pub get
+      - name: Get dependencies (shared + app)
+        script: |
+          cd ../shared && flutter pub get
+          cd ../app && flutter pub get
       - name: Install Pods
         script: find . -name "Podfile" -execdir pod install \;
       - name: Build iOS IPA
         script: |
-          # O export-options-plist é gerado automaticamente pelo Codemagic se a assinatura estiver configurada
           flutter build ipa --release --build-number=$BUILD_NUMBER
     artifacts:
-      - build/ios/ipa/*.ipa
+      - app/build/ios/ipa/*.ipa
 
-  # WORKFLOW 3: WEB
-  web-workflow:
-    name: Castanhal Hub - Web Build
+  # WORKFLOW 3: APP WEB
+  app-web-workflow:
+    name: App - Web Build
     instance_type: mac_mini_m1
     environment:
       flutter: stable
+    working_directory: app
     scripts:
-      - name: Get dependencies
-        script: flutter pub get
+      - name: Get dependencies (shared + app)
+        script: |
+          cd ../shared && flutter pub get
+          cd ../app && flutter pub get
       - name: Build Web
         script: flutter build web --release
     artifacts:
-      - build/web/**
+      - app/build/web/**
+
+  # WORKFLOW 4: ADMIN WEB
+  admin-web-workflow:
+    name: Admin - Web Build
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    working_directory: admin
+    scripts:
+      - name: Get dependencies (shared + admin)
+        script: |
+          cd ../shared && flutter pub get
+          cd ../admin && flutter pub get
+      - name: Build Web
+        script: flutter build web --release
+    artifacts:
+      - admin/build/web/**

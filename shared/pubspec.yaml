@@ -1,0 +1,15 @@
+name: shared
+description: Pacote compartilhado entre app e admin do Castanhal Hub.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^2.16.0
+  shared_preferences: ^2.3.4
+  url_launcher: ^6.2.5
+  google_fonts: ^6.0.0
