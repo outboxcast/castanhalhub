@@ -20,10 +20,14 @@ workflows:
         script: |
           cd ../shared && flutter pub get
           cd ../app && flutter pub get
+      - name: Build Android APK
+        script: |
+          flutter build apk --release --build-number=$BUILD_NUMBER
       - name: Build Android AAB
         script: |
           flutter build appbundle --release --build-number=$BUILD_NUMBER
     artifacts:
+      - app/build/app/outputs/flutter-apk/*.apk
       - app/build/app/outputs/bundle/release/*.aab
 
   # WORKFLOW 2: APP IOS
@@ -79,6 +83,11 @@ workflows:
         script: flutter build web --release
     artifacts:
       - app/build/web/**
+    publishing:
+      # ⚠️ Requer um environment group com GITHUB_TOKEN (classic PAT com repo scope)
+      github_pages:
+        source: app/build/web/
+        target_branch: gh-pages-app
 
   # WORKFLOW 4: ADMIN WEB
   admin-web-workflow:
@@ -103,3 +112,8 @@ workflows:
         script: flutter build web --release
     artifacts:
       - admin/build/web/**
+    publishing:
+      # ⚠️ Requer um environment group com GITHUB_TOKEN (classic PAT com repo scope)
+      github_pages:
+        source: admin/build/web/
+        target_branch: gh-pages-admin
