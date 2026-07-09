@@ -5,7 +5,7 @@ class LauncherUtils {
   static final SupabaseService _service = SupabaseService();
 
   static Future<void> openWhatsApp({
-    required int businessId,
+    required String businessId,
     required String phone,
     String message = "Olá! Vi seu anúncio no Castanhal Hub.",
   }) async {
@@ -33,7 +33,7 @@ class LauncherUtils {
   }
 
   static Future<void> openInstagram({
-    required int businessId,
+    required String businessId,
     required String handle,
   }) async {
     // Remove o '@' se o usuário tiver colocado

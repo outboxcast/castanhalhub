@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:shared/models/business.dart';
@@ -7,6 +6,8 @@ import 'package:shared/services/supabase_service.dart';
 import 'package:shared/utils/launcher_utils.dart';
 import 'package:shared/theme/theme.dart';
 import '../components/business_card.dart';
+import '../components/shimmer_loading.dart';
+import '../utils/route_transitions.dart';
 import 'detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -196,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           // Loading shimmer ao final ao carregar mais
           if (index >= _businesses.length) {
-            return _buildShimmerCard();
+            return ShimmerLoading.businessCard();
           }
 
           final b = _businesses[index];
@@ -217,9 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => DetailScreen(business: b),
-                ),
+                RouteTransitions.slideFromRight(DetailScreen(business: b)),
               );
             },
           );
@@ -295,57 +294,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLoadingGrid(bool isDesktop) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isDesktop ? 2 : 1,
-        mainAxisExtent: 400,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: 4,
-      itemBuilder: (context, index) => _buildShimmerCard(),
-    );
-  }
-
-  Widget _buildShimmerCard() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Placeholder da imagem
-            Container(
-              height: 180,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(height: 10, width: 80, color: Colors.white),
-                  const SizedBox(height: 8),
-                  Container(height: 16, width: 180, color: Colors.white),
-                  const SizedBox(height: 12),
-                  Container(height: 14, width: 120, color: Colors.white),
-                  const SizedBox(height: 20),
-                  Container(height: 40, color: Colors.white),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return ShimmerLoading.businessGrid(isDesktop: isDesktop);
   }
 }

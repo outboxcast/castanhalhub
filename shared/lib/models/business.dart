@@ -1,5 +1,5 @@
 class Business {
-  final int id;
+  final String id;
   final String businessName;
   final String categoryName;
   final String? address;
@@ -31,17 +31,18 @@ class Business {
 
   factory Business.fromMap(Map<String, dynamic> map) {
     return Business(
-      id: map['id'] as int,
-      businessName: map['business_name'] as String? ?? '',
+      // O campo 'id' nas views/tabelas do Supabase é UUID (String)
+      id: map['id'] is String ? map['id'] as String : (map['id'] as int).toString(),
+      businessName: map['name'] as String? ?? (map['business_name'] as String? ?? ''),
       categoryName: map['category_name'] as String? ?? '',
       address: map['address'] as String?,
-      phoneNumber: map['phone_number'] as String? ?? '',
+      phoneNumber: map['whatsapp_number'] as String? ?? (map['phone_number'] as String? ?? ''),
       rating: (map['rating'] as num?)?.toDouble() ?? 5.0,
       latitude: (map['latitude'] as num?)?.toDouble() ?? -1.2974,
       longitude: (map['longitude'] as num?)?.toDouble() ?? -47.9274,
-      coverUrl: map['cover_url'] as String? ?? '',
+      coverUrl: map['image_url'] as String? ?? (map['cover_url'] as String? ?? ''),
       isPremium: map['is_premium'] as bool? ?? false,
-      instagramHandle: map['instagram_handle'] as String?,
+      instagramHandle: map['instagram_url'] as String? ?? (map['instagram_handle'] as String?),
       website: map['website'] as String?,
       description: map['description'] as String?,
     );
@@ -50,23 +51,23 @@ class Business {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'business_name': businessName,
+      'name': businessName,
       'category_name': categoryName,
       'address': address,
-      'phone_number': phoneNumber,
+      'whatsapp_number': phoneNumber,
       'rating': rating,
       'latitude': latitude,
       'longitude': longitude,
-      'cover_url': coverUrl,
+      'image_url': coverUrl,
       'is_premium': isPremium,
-      'instagram_handle': instagramHandle,
+      'instagram_url': instagramHandle,
       'website': website,
       'description': description,
     };
   }
 
   Business copyWith({
-    int? id,
+    String? id,
     String? businessName,
     String? categoryName,
     String? address,

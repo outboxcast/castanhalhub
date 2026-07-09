@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import 'package:shared/models/business.dart';
 import 'package:shared/services/supabase_service.dart';
 import 'package:shared/services/favorites_service.dart';
 import 'package:shared/utils/launcher_utils.dart';
 import 'package:shared/theme/theme.dart';
+import '../providers/auth_provider.dart';
 import '../components/business_card.dart';
+import '../components/shimmer_loading.dart';
+import '../components/login_required_sheet.dart';
+import '../utils/route_transitions.dart';
 import 'detail_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -25,7 +30,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
+    _loadIfAuthenticated();
+  }
+
+  void _loadIfAuthenticated() {
+    final auth = context.read<AuthProvider>();
+    if (auth.isFullyAuthenticated) {
+      _loadFavorites();
+    } else {
+      setState(() => _loading = false);
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -60,13 +74,61 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadFavorites),
         ],
       ),
-      body: _buildBody(isDesktop),
+      body: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (!auth.isFullyAuthenticated) {
+            return _buildLoginRequiredBody(isDesktop);
+          }
+          return _buildBody(isDesktop);
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoginRequiredBody(bool isDesktop) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.favorite_border, size: 72, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              'Favoritos',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Faça login para salvar e gerenciar\nseus negócios favoritos.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[500], height: 1.4),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => LoginRequiredSheet.show(context, featureName: 'favoritos'),
+              icon: const Icon(Icons.login, size: 18),
+              label: const Text('Fazer login'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildBody(bool isDesktop) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return ShimmerLoading.businessGrid(isDesktop: isDesktop);
     }
 
     if (_favoriteBusinesses.isEmpty) {
@@ -127,7 +189,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => DetailScreen(business: b)),
+                RouteTransitions.slideFromRight(DetailScreen(business: b)),
               );
             },
           );

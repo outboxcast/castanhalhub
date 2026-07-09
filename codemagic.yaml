@@ -8,6 +8,17 @@ workflows:
         - google_play_credentials
       flutter: stable
     working_directory: app
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+      paths:
+        - app/**
+        - shared/**
+        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -29,6 +40,17 @@ workflows:
       flutter: stable
       xcode: latest
     working_directory: app
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+      paths:
+        - app/**
+        - shared/**
+        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -49,6 +71,17 @@ workflows:
     environment:
       flutter: stable
     working_directory: app
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+      paths:
+        - app/**
+        - shared/**
+        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + app)
         script: |
@@ -66,6 +99,17 @@ workflows:
     environment:
       flutter: stable
     working_directory: admin
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+      paths:
+        - admin/**
+        - shared/**
+        - codemagic.yaml
     scripts:
       - name: Get dependencies (shared + admin)
         script: |

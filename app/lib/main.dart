@@ -1,31 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared/theme/theme.dart';
+import 'providers/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/about_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
-  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
-
-  if (!Platform.environment.containsKey('FLUTTER_TEST') &&
-      supabaseUrl.isNotEmpty &&
-      supabaseAnonKey.isNotEmpty) {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      publishableKey: supabaseAnonKey,
-      authOptions: const FlutterAuthClientOptions(
-        autoRefreshToken: true,
-        detectSessionInUri: true,
-      ),
-    );
-  }
 
   runApp(const MyApp());
 }
@@ -35,11 +23,72 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Castanhal Hub',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const MainShell(),
+    return ChangeNotifierProvider<AuthProvider>(
+      create: (_) => AuthProvider(),
+      child: MaterialApp(
+        title: 'Castanhal Hub',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const AppInitializer(),
+      ),
+    );
+  }
+}
+
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  State<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+    const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+
+    if (!Platform.environment.containsKey('FLUTTER_TEST') &&
+        supabaseUrl.isNotEmpty &&
+        supabaseAnonKey.isNotEmpty) {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        publishableKey: supabaseAnonKey,
+        authOptions: const FlutterAuthClientOptions(
+          autoRefreshToken: true,
+          detectSessionInUri: true,
+        ),
+      );
+    }
+
+    if (mounted) {
+      setState(() => _initialized = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_initialized) {
+      return const SplashScreen();
+    }
+
+    return Consumer<AuthProvider>(
+      builder: (context, auth, _) {
+        if (auth.initializing) {
+          return const SplashScreen();
+        }
+        if (auth.isAuthenticated) {
+          return const MainShell();
+        }
+        return const LoginScreen();
+      },
     );
   }
 }

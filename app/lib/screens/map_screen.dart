@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared/models/business.dart';
 import 'package:shared/services/supabase_service.dart';
 import 'package:shared/theme/theme.dart';
+import '../components/shimmer_loading.dart';
+import '../utils/route_transitions.dart';
 import 'detail_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -54,7 +56,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildBody(bool isDesktop) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return ShimmerLoading.mapPlaceholder();
     }
 
     if (_error != null) {
@@ -85,7 +87,7 @@ class _MapScreenState extends State<MapScreen> {
             initialCenter: const LatLng(-1.2974, -47.9274),
             initialZoom: 13,
             interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
-            onTap: (_, __) {},
+            onTap: (_, _) {},
           ),
           children: [
             TileLayer(
@@ -102,9 +104,7 @@ class _MapScreenState extends State<MapScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => DetailScreen(business: b),
-                        ),
+                        RouteTransitions.slideFromRight(DetailScreen(business: b)),
                       );
                     },
                     child: Column(

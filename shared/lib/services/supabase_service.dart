@@ -41,6 +41,76 @@ class SupabaseService {
     }
   }
 
+  // ==================== AUTENTICAÇÃO ====================
+
+  /// Obtém o usuário atual logado
+  User? getCurrentUser() {
+    if (_client == null) return null;
+    return _client!.auth.currentUser;
+  }
+
+  /// Stream de mudanças no estado de autenticação
+  Stream<AuthState> get authStateChanges {
+    // Se não inicializado, retorna stream vazia para evitar erros
+    if (_client == null) {
+      return const Stream.empty();
+    }
+    return _client!.auth.onAuthStateChange;
+  }
+
+  /// Login com email e senha
+  Future<AuthResponse> signInWithPassword({
+    required String email,
+    required String password,
+  }) async {
+    final client = await _ensureClient();
+    return client.auth.signInWithPassword(email: email, password: password);
+  }
+
+  /// Cadastro com email e senha
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+  }) async {
+    final client = await _ensureClient();
+    return client.auth.signUp(email: email, password: password);
+  }
+
+  /// Login com Google (OAuth) — abre navegador do sistema
+  /// ✅ Compatível com Android e iOS
+  Future<bool> signInWithGoogle() async {
+    final client = await _ensureClient();
+    await client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      authScreenLaunchMode: LaunchMode.platformDefault,
+    );
+    return true;
+  }
+
+  /// Login com Apple (OAuth) — abre navegador do sistema
+  /// ✅ Compatível com Android e iOS
+  /// ⚠️ No iOS requer "Sign in with Apple" capability no Xcode
+  Future<bool> signInWithApple() async {
+    final client = await _ensureClient();
+    await client.auth.signInWithOAuth(
+      OAuthProvider.apple,
+      authScreenLaunchMode: LaunchMode.platformDefault,
+    );
+    return true;
+  }
+
+  /// Envia email de recuperação de senha
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    final client = await _ensureClient();
+    await client.auth.resetPasswordForEmail(email);
+  }
+
+  /// Faz logout
+  Future<void> signOut() async {
+    final client = await _ensureClient();
+    await client.auth.signOut();
+  }
+
   Future<List<Business>> fetchFeed({String? category, String? searchQuery}) async {
     try {
       final client = await _ensureClient();
@@ -51,7 +121,7 @@ class SupabaseService {
       }
 
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        query = query.ilike('business_name', '%$searchQuery%');
+        query = query.ilike('name', '%$searchQuery%');
       }
 
       final response = await query.order('is_premium', ascending: false);
@@ -83,7 +153,7 @@ class SupabaseService {
   }
 
   /// Busca um negócio pelo ID
-  Future<Business?> fetchBusinessById(int id) async {
+  Future<Business?> fetchBusinessById(String id) async {
     try {
       final client = await _ensureClient();
       final response = await client
@@ -99,12 +169,12 @@ class SupabaseService {
     }
   }
 
-  Future<void> logClick(int businessId, String platform) async {
+  Future<void> logClick(String businessId, String clickType) async {
     try {
       final client = await _ensureClient();
       await client.from('analytics_clicks').insert({
         'business_id': businessId,
-        'platform': platform,
+        'click_type': clickType,
         'created_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
@@ -118,7 +188,7 @@ class SupabaseService {
   Future<List<Business>> fetchAllBusinesses() async {
     try {
       final client = await _ensureClient();
-      final response = await client.from('businesses').select('*').order('created_at', ascending: false);
+      final response = await client.from('get_feed').select('*').order('is_premium', ascending: false);
       final list = List<Map<String, dynamic>>.from(response);
       return list.map((e) => Business.fromMap(e)).toList();
     } catch (e) {
@@ -170,12 +240,12 @@ class SupabaseService {
 
       final whatsappCount = await client.from('analytics_clicks')
           .select()
-          .eq('platform', 'whatsapp')
+          .eq('click_type', 'whatsapp')
           .count();
 
       final instagramCount = await client.from('analytics_clicks')
           .select()
-          .eq('platform', 'instagram')
+          .eq('click_type', 'instagram')
           .count();
 
       return {

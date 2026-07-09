@@ -4,6 +4,11 @@ castanhal-hub.jks
 *.jks
 *.keystore
 
+# Environment files with credentials
+*.env
+!.env.example
+**/assets/.env
+
 # Flutter build outputs
 **/build/
 **/.dart_tool/

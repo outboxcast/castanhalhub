@@ -61,14 +61,14 @@ class SupabaseService {
 
   // ==================== NEGÓCIOS/LOJAS ====================
 
-  /// Obtém todas as lojas com paginação
+  /// Obtém todas as lojas com paginação (inclui nome da categoria)
   Future<List<Map<String, dynamic>>> getBusinesses({
     int limit = 10,
     int offset = 0,
     String? searchQuery,
   }) async {
     try {
-      var query = _client.from('businesses').select('*');
+      var query = _client.from('businesses').select('*, categories(name)');
 
       if (searchQuery != null && searchQuery.isNotEmpty) {
         query = query.ilike('name', '%$searchQuery%');
@@ -78,7 +78,14 @@ class SupabaseService {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      return response;
+      // Achata o resultado: extrai category_name do objeto aninhado
+      return response.map((business) {
+        final flat = Map<String, dynamic>.from(business);
+        final category = business['categories'] as Map<String, dynamic>?;
+        flat['category_name'] = category?['name'] ?? 'N/A';
+        flat.remove('categories');
+        return flat;
+      }).toList();
     } catch (e) {
       throw Exception('Erro ao buscar lojas: $e');
     }
@@ -100,15 +107,20 @@ class SupabaseService {
     }
   }
 
-  /// Obtém uma loja por ID
+  /// Obtém uma loja por ID (inclui nome da categoria)
   Future<Map<String, dynamic>?> getBusinessById(String id) async {
     try {
       final response = await _client
           .from('businesses')
-          .select('*')
+          .select('*, categories(name)')
           .eq('id', id)
           .single();
-      return response;
+
+      final flat = Map<String, dynamic>.from(response);
+      final category = response['categories'] as Map<String, dynamic>?;
+      flat['category_name'] = category?['name'] ?? 'N/A';
+      flat.remove('categories');
+      return flat;
     } catch (e) {
       throw Exception('Erro ao buscar loja: $e');
     }
@@ -222,16 +234,23 @@ class SupabaseService {
 
   // ==================== ANALYTICS ====================
 
-  /// Obtém os últimos cliques registrados
+  /// Obtém os últimos cliques registrados (com nome da empresa)
   Future<List<Map<String, dynamic>>> getRecentClicks({int limit = 20}) async {
     try {
       final response = await _client
           .from('analytics_clicks')
-          .select('*')
+          .select('*, businesses(name)')
           .order('created_at', ascending: false)
           .limit(limit);
 
-      return response;
+      // Achata o resultado: extrai business_name do objeto aninhado
+      return response.map((click) {
+        final flat = Map<String, dynamic>.from(click);
+        final business = click['businesses'] as Map<String, dynamic>?;
+        flat['business_name'] = business?['name'] ?? 'Sem nome';
+        flat.remove('businesses');
+        return flat;
+      }).toList();
     } catch (e) {
       throw Exception('Erro ao buscar cliques: $e');
     }

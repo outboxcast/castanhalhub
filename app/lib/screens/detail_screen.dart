@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,6 +10,8 @@ import 'package:shared/models/business.dart';
 import 'package:shared/services/supabase_service.dart';
 import 'package:shared/services/favorites_service.dart';
 import 'package:shared/theme/theme.dart';
+import '../providers/auth_provider.dart';
+import '../components/login_required_sheet.dart';
 
 class DetailScreen extends StatefulWidget {
   final Business business;
@@ -37,6 +40,13 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _toggleFavorite() async {
+    // Proteção: apenas usuários logados podem favoritar
+    final auth = context.read<AuthProvider>();
+    if (!auth.isFullyAuthenticated) {
+      LoginRequiredSheet.show(context, featureName: 'favoritos');
+      return;
+    }
+
     await _favorites.toggleFavorite(widget.business.id);
     await _loadFavoriteState();
   }
@@ -79,7 +89,7 @@ Confira no Castanhal Hub!
                   Image.network(
                     b.coverUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: AppTheme.primary.withValues(alpha: 0.2),
                       child: const Icon(Icons.store, size: 80, color: Colors.white24),
                     ),
